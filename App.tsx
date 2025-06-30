@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import type { ReceiptDetails } from './utils/types'; // Updated path
 import { generateReceiptPdf } from './utils/receiptPdfGenerator';
@@ -203,7 +202,7 @@ const App: React.FC = () => {
         </header>
 
         <main id="receipt-content" className="space-y-5 text-slate-800">
-            <div className="flex justify-between items-baseline">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-4 sm:gap-0">
                 {/* English Date Part */}
                 <div className="flex items-baseline">
                     <span className={`${enLabelClasses} mr-2 whitespace-nowrap`}>DATE</span>
@@ -214,8 +213,8 @@ const App: React.FC = () => {
                     </div>
                 </div>
                 {/* Arabic Date Part */}
-                <div className="flex items-baseline" dir="rtl">
-                    <span className={`${arLabelClasses} ml-2 whitespace-nowrap`}>تاريخ الاستلام</span>
+                <div className="flex items-baseline justify-end" dir="rtl">
+                    <span className={`${arLabelClasses} ml-2 whitespace-nowrap text-sm sm:text-base`}>تاريخ الاستلام</span>
                      <div className="flex items-center mx-2"> {/* Container for RTL inputs */}
                         <input type="text" id="date-day-ar" value={currentReceiptDetails.dayAr} onChange={(e) => handleDetailChange('dayAr', e.target.value)} className={`${fillInInputClasses} !w-10 !flex-grow-0 font-arabic text-center`} maxLength={2}/> /
                         <input type="text" id="date-month-ar" value={currentReceiptDetails.monthAr} onChange={(e) => handleDetailChange('monthAr', e.target.value)} className={`${fillInInputClasses} !w-10 !flex-grow-0 font-arabic text-center`} maxLength={2}/> /
