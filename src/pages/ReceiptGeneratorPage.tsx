@@ -3,6 +3,7 @@ import type { ReceiptDetails } from '../utils/types';
 import { generateReceiptPdf } from '../utils/receiptPdfGenerator';
 import { DEFAULT_RECEIPT_DETAILS, RECEIPT_COUNTER_STORAGE_KEY } from '../constants';
 import { DownloadIcon } from '../components/icons/DownloadIcon';
+import { ReceiptDatabase } from '../utils/receiptDatabase';
 
 // Extend window interface for appLogout
 declare global {
@@ -16,8 +17,10 @@ const ReceiptGeneratorPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [nextReceiptNumber, setNextReceiptNumber] = useState<number>(1);
+  const [showSuccessMessage, setShowSuccessMessage] = useState<boolean>(false);
   
   const objectUrlTrackerRef = useRef<Record<string, string>>({});
+  const db = ReceiptDatabase.getInstance();
 
   const formatReceiptNumber = useCallback((num: number): string => {
     return `TKR2025-${num.toString().padStart(4, '0')}`;
@@ -112,22 +115,36 @@ const ReceiptGeneratorPage: React.FC = () => {
   const handleDownloadReceiptPdf = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+    setShowSuccessMessage(false);
+    
     try {
       const currentFormattedReceiptNo = formatReceiptNumber(nextReceiptNumber);
-      await generateReceiptPdf({ ...currentReceiptDetails, receiptNumber: currentFormattedReceiptNo }, 'save');
+      const receiptWithNumber = { ...currentReceiptDetails, receiptNumber: currentFormattedReceiptNo };
       
+      // Generate PDF
+      await generateReceiptPdf(receiptWithNumber, 'save');
+      
+      // Save to database
+      const receiptId = db.saveReceipt(receiptWithNumber);
+      console.log('Receipt saved to database with ID:', receiptId);
+      
+      // Update counter
       const newNextNum = nextReceiptNumber + 1;
       setNextReceiptNumber(newNextNum);
       localStorage.setItem(RECEIPT_COUNTER_STORAGE_KEY, newNextNum.toString());
+      
+      // Show success message
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 3000);
+      
     } catch (err) {
       console.error("Error generating final Receipt PDF for download:", err);
       const errorMsg = `Failed to generate Receipt PDF. ${(err as Error).message}`;
       setError(errorMsg);
-      alert(errorMsg);
     } finally {
       setIsLoading(false);
     }
-  }, [currentReceiptDetails, nextReceiptNumber, formatReceiptNumber]);
+  }, [currentReceiptDetails, nextReceiptNumber, formatReceiptNumber, db]);
 
   const fillInInputClasses = "fill-in-input border-b-[1.5px] border-solid border-slate-500 bg-transparent flex-grow mx-3 relative bottom-[1px] outline-none text-center pb-[2px] focus:border-solid focus:border-blue-600 font-sans";
   const interactiveCheckboxClasses = "interactive-checkbox w-5 h-5 border-[1.5px] border-slate-400 rounded cursor-pointer accent-blue-600 align-middle";
@@ -144,6 +161,13 @@ const ReceiptGeneratorPage: React.FC = () => {
           <div className="bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
             <strong className="font-bold">ERROR </strong>
             <span className="block sm:inline">{error}</span>
+          </div>
+      )}
+
+      {showSuccessMessage && (
+          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong className="font-bold">SUCCESS </strong>
+            <span className="block sm:inline">Receipt generated and saved to database successfully!</span>
           </div>
       )}
 
@@ -318,7 +342,7 @@ const ReceiptGeneratorPage: React.FC = () => {
             disabled={isLoading} 
             className="w-full sm:w-auto px-6 py-3 text-sm font-medium text-base-100 bg-primary hover:bg-primary/90 border border-transparent rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-60 transition-colors flex items-center justify-center"
           >
-            <DownloadIcon className="w-5 h-5 mr-2"/> {isLoading ? 'DOWNLOADING...' : 'DOWNLOAD PDF'}
+            <DownloadIcon className="w-5 h-5 mr-2"/> {isLoading ? 'GENERATING...' : 'GENERATE & SAVE RECEIPT'}
           </button>
       </div>
     </div>

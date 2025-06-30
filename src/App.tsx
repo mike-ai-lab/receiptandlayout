@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import ReceiptGeneratorPage from './pages/ReceiptGeneratorPage';
 import TentsLayoutPage from './pages/TentsLayoutPage';
 import TentBookingsTablePage from './pages/TentBookingsTablePage';
+import ReceiptsTablePage from './pages/ReceiptsTablePage';
 import { ReceiptIcon } from './components/icons/ReceiptIcon';
 import { LayersIcon } from './components/icons/LayersIcon';
 import { FileTextIcon } from './components/icons/FileTextIcon';
@@ -28,13 +29,14 @@ const Navigation: React.FC = () => {
         } catch(e) { 
           console.error("Error removing item from localStorage during fallback logout:", e);
         }
-        location.reload();
+        window.location.reload();
       }
     }, 0);
   };
 
   const navItems = [
     { path: '/', label: 'Receipt Generator', icon: ReceiptIcon },
+    { path: '/receipts-database', label: 'Receipts Database', icon: FileTextIcon },
     { path: '/tents-layout', label: 'Tents Layout', icon: LayersIcon },
     { path: '/tents-bookings', label: 'Tent Bookings', icon: FileTextIcon },
   ];
@@ -53,18 +55,18 @@ const Navigation: React.FC = () => {
               <span className="font-bold text-xl text-slate-800">TKR Admin</span>
             </div>
             
-            <div className="hidden md:flex space-x-1">
+            <div className="hidden lg:flex space-x-1">
               {navItems.map(({ path, label, icon: Icon }) => (
                 <Link
                   key={path}
                   to={path}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
                     location.pathname === path
                       ? 'bg-primary text-white'
                       : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
                   }`}
                 >
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-4 h-4" />
                   <span>{label}</span>
                 </Link>
               ))}
@@ -81,20 +83,20 @@ const Navigation: React.FC = () => {
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden pb-4">
-          <div className="flex space-x-1">
+        <div className="lg:hidden pb-4">
+          <div className="grid grid-cols-2 gap-1">
             {navItems.map(({ path, label, icon: Icon }) => (
               <Link
                 key={path}
                 to={path}
-                className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors flex-1 ${
+                className={`flex flex-col items-center space-y-1 px-2 py-2 rounded-lg text-xs font-medium transition-colors ${
                   location.pathname === path
                     ? 'bg-primary text-white'
                     : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
                 }`}
               >
                 <Icon className="w-5 h-5" />
-                <span>{label}</span>
+                <span className="text-center">{label}</span>
               </Link>
             ))}
           </div>
@@ -112,6 +114,7 @@ const App: React.FC = () => {
         
         <Routes>
           <Route path="/" element={<ReceiptGeneratorPage />} />
+          <Route path="/receipts-database" element={<ReceiptsTablePage />} />
           <Route path="/tents-layout" element={<TentsLayoutPage />} />
           <Route path="/tents-bookings" element={<TentBookingsTablePage />} />
         </Routes>
