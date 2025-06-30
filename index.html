@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Receipt Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              arabic: ['Noto Kufi Arabic', 'sans-serif'],
+            },
+            colors: {
+              primary: 'var(--primary-color, #2563eb)', // Blue-600
+              secondary: 'var(--secondary-color, #475569)', // Slate-600
+              accent: 'var(--accent-color, #10b981)', // Emerald-500
+              neutral: 'var(--neutral-color, #1e293b)', // Slate-800
+              'base-100': 'var(--base-100-color, #ffffff)',
+              'base-200': 'var(--base-200-color, #f1f5f9)', // Slate-100
+              'base-300': 'var(--base-300-color, #e2e8f0)', // Slate-200
+            },
+          }
+        }
+      }
+    </script>
+    <style>
+      :root {
+        --primary-color: #2563eb; /* Blue-600 */
+        --secondary-color: #475569; /* Slate-600 */
+        --accent-color: #10b981; /* Emerald-500 */
+        --neutral-color: #1e293b; /* Slate-800 */
+        --base-100-color: #ffffff;
+        --base-200-color: #f1f5f9; /* Slate-100 */
+        --base-300-color: #e2e8f0; /* Slate-200 */
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--base-200-color); /* bg-slate-100 */
+        color: var(--neutral-color);
+        margin: 0;
+        padding: 0;
+      }
+      [dir="rtl"] {
+        font-family: 'Noto Kufi Arabic', 'Inter', sans-serif;
+      }
+      /* Custom scrollbar for webkit browsers */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--base-300-color);
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #9ca3af; /* Slate-400 */
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #6b7280; /* Slate-500 */
+      }
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover,
+      input:-webkit-autofill:focus,
+      input:-webkit-autofill:active,
+      textarea:-webkit-autofill,
+      textarea:-webkit-autofill:hover,
+      textarea:-webkit-autofill:focus,
+      textarea:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px var(--base-100-color) inset !important;
+        box-shadow: 0 0 0 30px var(--base-100-color) inset !important;
+        -webkit-text-fill-color: var(--neutral-color) !important;
+      }
+       /* Print-specific styles */
+        @media print {
+            body {
+                background-color: #fff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            #receipt-app-container { /* Target the main app container for printing */
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                max-width: 100% !important;
+            }
+            .fill-in-input { /* Ensure dotted lines are visible */
+                border-bottom: 1.5px dotted #000 !important;
+            }
+            .no-print { /* Class to hide elements during print */
+                display: none !important;
+            }
+        }
+
+      /* Login Screen Styles */
+      #login-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--base-200-color); /* Fallback, gates will cover this */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        overflow: hidden; /* Crucial for gate animation */
+      }
+
+      .login-gate {
+        position: absolute;
+        top: 0;
+        width: 50%;
+        height: 100%;
+        background-color: var(--base-200-color);
+        transition: transform 0.7s cubic-bezier(0.77, 0, 0.175, 1); /* Ease-in-out like */
+        z-index: 0; /* Behind the form card */
+      }
+
+      #login-gate-left {
+        left: 0;
+      }
+
+      #login-gate-right {
+        right: 0;
+      }
+      
+      #login-screen.opening #login-gate-left {
+        transform: translateX(-100%);
+      }
+
+      #login-screen.opening #login-gate-right {
+        transform: translateX(100%);
+      }
+
+      #login-form-card {
+        position: relative; /* To be centered by #login-screen's flex */
+        z-index: 1; /* Above gates */
+        background-color: var(--base-100-color);
+        padding: 2.5rem 3rem; /* Increased padding */
+        border-radius: 0.75rem; /* 12px */
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        text-align: center;
+        width: 100%;
+        max-width: 400px; /* Max width for the card */
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+      }
+
+      #login-form-card.fading-out {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+      }
+      
+      #login-logo {
+        height: 60px; /* Adjust as needed */
+        margin-bottom: 1.5rem; /* Space below logo */
+      }
+
+      #login-form-card h2 {
+        font-size: 1.75rem; /* text-2xl */
+        font-weight: 600; /* semibold */
+        color: var(--neutral-color);
+        margin-bottom: 2rem; /* Increased space */
+      }
+
+      .password-input-container {
+        position: relative;
+        width: 100%;
+        margin-bottom: 1.5rem;
+      }
+
+      #access-password {
+        width: 100%;
+        padding: 0.875rem 1rem; /* py-3.5 px-4 */
+        padding-right: 3rem; /* Space for the icon button */
+        border: 1px solid var(--base-300-color);
+        border-radius: 0.5rem; /* rounded-lg */
+        font-size: 1rem;
+        background-color: var(--base-100-color);
+        color: var(--neutral-color);
+        box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      #access-password:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
+      }
+      #access-password::placeholder {
+        color: var(--secondary-color);
+        opacity: 0.6;
+      }
+
+      #toggle-password-visibility {
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        padding: 0.375rem; /* p-1.5 */
+        cursor: pointer;
+        color: var(--secondary-color);
+        border-radius: 9999px; /* rounded-full */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #toggle-password-visibility:hover svg,
+      #toggle-password-visibility:focus svg {
+        color: var(--primary-color);
+      }
+      #toggle-password-visibility svg {
+        width: 1.25rem; /* w-5 */
+        height: 1.25rem; /* h-5 */
+        transition: color 0.2s;
+      }
+
+
+      #login-button {
+        width: 100%;
+        padding: 0.875rem 1.5rem; /* py-3.5 px-6 */
+        background-color: var(--primary-color);
+        color: var(--base-100-color);
+        border: none;
+        border-radius: 0.5rem; /* rounded-lg */
+        font-weight: 500; /* medium */
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s, box-shadow 0.2s;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+      }
+      #login-button:hover {
+        background-color: color-mix(in srgb, var(--primary-color) 90%, black);
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      }
+      #login-button:focus {
+         outline: none;
+         box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 40%, transparent);
+      }
+
+      #login-error, #storage-error-msg {
+        color: #ef4444; /* red-500 */
+        margin-top: 1rem; /* mt-4 */
+        font-size: 0.875rem; /* text-sm */
+        font-weight: 500;
+        min-height: 1.25rem; /* To prevent layout shift */
+      }
+
+      /* User applied devtools changes */
+      /* Apply specific border-bottom to inputs and checkboxes */
+      .outline-none, /* Targets all text inputs in the receipt form via fill-in-input class */
+      #access-password /* Targets the login password input */
+      {
+        border-bottom: 1.5px solid rgba(0, 0, 0, 0.267);
+      }
+
+      /* Targets checkboxes in the receipt form.
+         The interactive-checkbox class has an all-around border from Tailwind.
+         This rule specifically overrides the bottom border color and style. */
+      .accent-blue-600.interactive-checkbox {
+        border-bottom: 1.5px solid rgba(0, 0, 0, 0.267);
+      }
+      /* End user applied devtools changes */
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "file-saver": "https://esm.sh/file-saver@^2.0.5",
+    "jspdf": "https://esm.sh/jspdf@^2.5.1",
+    "marked": "https://esm.sh/marked@^15.0.12",
+    "dompurify": "https://esm.sh/dompurify@^3.2.6",
+    "@google/genai": "https://esm.sh/@google/genai@^1.6.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="p-0 bg-base-200">
+    <div id="login-screen" style="display: none;">
+      <div id="login-gate-left" class="login-gate"></div>
+      <div id="login-gate-right" class="login-gate"></div>
+      <div id="login-form-card">
+        <img src="https://hbslewdkkgwsaohjyzak.supabase.co/storage/v1/object/public/tkr//logo.png" alt="Tripoli Karting Race Logo" id="login-logo"/>
+        <h2>Access Required</h2>
+        <div class="password-input-container">
+          <input type="password" id="access-password" placeholder="Enter access key" />
+          <button type="button" id="toggle-password-visibility" aria-label="Show password">
+            <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <svg id="eye-slash-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display:none;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L6.228 6.228" />
+            </svg>
+          </button>
+        </div>
+        <button id="login-button" onclick="checkPassword()">Login</button>
+        <p id="login-error" style="display: none;"></p>
+      </div>
+    </div>
+
+    <div id="app-content" style="display:none;">
+      <div id="root"></div>
+    </div>
+    
+    <script type="module" src="/index.tsx"></script>
+
+    <script>
+      const AUTH_KEY = "RECEIPT_ADMIN_SESSION_TOKEN";
+      const ACCESS_PASSWORD = "TKF2025ops"; 
+
+      function checkPassword() {
+        const passwordInput = document.getElementById("access-password");
+        const loginError = document.getElementById("login-error");
+
+        if (passwordInput && passwordInput.value === ACCESS_PASSWORD) {
+          try {
+            localStorage.setItem(AUTH_KEY, "AUTHORIZED_V1");
+            const loginScreen = document.getElementById("login-screen");
+            const appContent = document.getElementById("app-content");
+            const loginFormCard = document.getElementById('login-form-card');
+
+            if (loginScreen && loginFormCard) {
+              loginScreen.classList.add("opening");
+              loginFormCard.classList.add("fading-out");
+
+              const leftGate = document.getElementById('login-gate-left');
+              if (leftGate) {
+                // Listen to transitionend on one of the gates
+                leftGate.addEventListener('transitionend', () => {
+                  loginScreen.style.display = "none";
+                  loginScreen.classList.remove("opening");
+                  
+                  loginFormCard.classList.remove("fading-out");
+                  loginFormCard.style.opacity = ''; // Reset for potential re-display
+                  loginFormCard.style.transform = ''; // Reset for potential re-display
+
+                  if (appContent) appContent.style.display = "block";
+                }, { once: true });
+              } else {
+                 // Fallback if gates are not found (e.g. during dev or error)
+                loginScreen.style.display = "none";
+                if (appContent) appContent.style.display = "block";
+              }
+            } else {
+                // Fallback if critical animation elements are missing
+                if (document.getElementById("login-screen")) document.getElementById("login-screen").style.display = "none";
+                if (appContent) appContent.style.display = "block";
+            }
+
+            if (loginError) loginError.style.display = "none";
+          } catch (e) {
+            console.error("Error accessing localStorage:", e);
+            if (loginError) {
+                loginError.textContent = "Error saving session. Please enable localStorage/cookies.";
+                loginError.style.display = "block";
+            }
+          }
+        } else {
+          if (loginError) {
+            loginError.textContent = "Incorrect password.";
+            loginError.style.display = "block";
+          }
+          if (passwordInput) {
+            passwordInput.value = "";
+            passwordInput.focus(); // Refocus on error
+          }
+          // Optional: Add a shake animation to the form card on error
+          const formCard = document.getElementById('login-form-card');
+          if (formCard) {
+            formCard.animate([
+                { transform: 'translateX(0)' },
+                { transform: 'translateX(-10px)' },
+                { transform: 'translateX(10px)' },
+                { transform: 'translateX(-10px)' },
+                { transform: 'translateX(10px)' },
+                { transform: 'translateX(0)' }
+            ], {
+                duration: 500,
+                easing: 'ease-in-out'
+            });
+          }
+        }
+      }
+
+      function checkSession() {
+        const loginScreen = document.getElementById("login-screen");
+        const appContent = document.getElementById("app-content");
+        
+        try {
+            if (localStorage.getItem(AUTH_KEY) === "AUTHORIZED_V1") {
+                if (loginScreen) loginScreen.style.display = "none";
+                if (appContent) appContent.style.display = "block";
+            } else {
+                if (loginScreen) loginScreen.style.display = "flex"; 
+                if (appContent) appContent.style.display = "none";
+            }
+        } catch (e) {
+            console.error("Error accessing localStorage during session check:", e);
+            if (loginScreen) {
+                 loginScreen.style.display = "flex";
+                let storageErrorMsg = document.getElementById("storage-error-msg");
+                if (!storageErrorMsg && loginError) { // Reuse login-error p tag if possible
+                    loginError.textContent = "Could not verify session. Please ensure localStorage is enabled.";
+                    loginError.style.display = "block";
+                } else if (!storageErrorMsg) { // Create if login-error is also missing
+                    storageErrorMsg = document.createElement('p');
+                    storageErrorMsg.id = "storage-error-msg";
+                    storageErrorMsg.style.color = "#ef4444";
+                    storageErrorMsg.style.marginTop = "1rem";
+                    storageErrorMsg.textContent = "Could not verify session. Please ensure localStorage is enabled.";
+                    const formCard = document.getElementById('login-form-card');
+                    if(formCard) formCard.appendChild(storageErrorMsg); else loginScreen.appendChild(storageErrorMsg);
+                }
+            }
+            if (appContent) appContent.style.display = "none";
+        }
+      }
+
+      window.appLogout = function() {
+        try {
+            localStorage.removeItem(AUTH_KEY);
+        } catch (e) {
+            console.error("Error removing item from localStorage:", e);
+        }
+        location.reload(true); 
+      }
+      
+      window.onload = function() {
+        checkSession();
+
+        const passwordField = document.getElementById("access-password");
+        if (passwordField) {
+          passwordField.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              checkPassword();
+            }
+          });
+        }
+
+        // Show/Hide Password Toggle
+        const toggleButton = document.getElementById("toggle-password-visibility");
+        const eyeIcon = document.getElementById("eye-icon");
+        const eyeSlashIcon = document.getElementById("eye-slash-icon");
+
+        if (toggleButton && passwordField && eyeIcon && eyeSlashIcon) {
+          toggleButton.addEventListener("click", () => {
+            if (passwordField.type === "password") {
+              passwordField.type = "text";
+              eyeIcon.style.display = "none";
+              eyeSlashIcon.style.display = "block";
+              toggleButton.setAttribute("aria-label", "Hide password");
+            } else {
+              passwordField.type = "password";
+              eyeIcon.style.display = "block";
+              eyeSlashIcon.style.display = "none";
+              toggleButton.setAttribute("aria-label", "Show password");
+            }
+          });
+        }
+      };
+    </script>
+  </body>
+</html>
