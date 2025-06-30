@@ -223,24 +223,24 @@ const App: React.FC = () => {
                 </div>
             </div>
 
-            <div className="flex justify-between items-baseline">
-                <span className={`${enLabelClasses} whitespace-nowrap mr-2`}>RECEIVED FROM</span>
-                <input type="text" name="receivedFromName" value={currentReceiptDetails.receivedFromName} onChange={(e) => handleDetailChange('receivedFromName', e.target.value)} className={`${fillInInputClasses}`}/>
-                <span className={`${arLabelClasses} whitespace-nowrap ml-2`} dir="rtl">وصلنا من السادة</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-4 sm:gap-0">
+                <span className={`${enLabelClasses} whitespace-nowrap mr-2 text-sm sm:text-base`}>RECEIVED FROM</span>
+                <input type="text" name="receivedFromName" value={currentReceiptDetails.receivedFromName} onChange={(e) => handleDetailChange('receivedFromName', e.target.value)} className={`${fillInInputClasses} order-2 sm:order-none`}/>
+                <span className={`${arLabelClasses} whitespace-nowrap ml-2 text-sm sm:text-base order-1 sm:order-none`} dir="rtl">وصلنا من السادة</span>
             </div>
 
-            <div className="flex justify-between items-baseline">
-                <span className={`${enLabelClasses} mr-2`}>AMOUNT</span>
-                <input type="text" name="amount" value={currentReceiptDetails.amount} onChange={(e) => handleDetailChange('amount', e.target.value)} className={`${fillInInputClasses}`}/>
-                <span className={`${arLabelClasses} ml-2`} dir="rtl">مبلغ وقدره</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-4 sm:gap-0">
+                <span className={`${enLabelClasses} mr-2 text-sm sm:text-base`}>AMOUNT</span>
+                <input type="text" name="amount" value={currentReceiptDetails.amount} onChange={(e) => handleDetailChange('amount', e.target.value)} className={`${fillInInputClasses} order-2 sm:order-none`}/>
+                <span className={`${arLabelClasses} ml-2 text-sm sm:text-base order-1 sm:order-none`} dir="rtl">مبلغ وقدره</span>
             </div>
             
-            <div className="flex justify-between items-baseline pt-4">
-                <span className={`${enLabelClasses} mr-2`}>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-4 sm:gap-0 pt-4">
+                <span className={`${enLabelClasses} mr-2 text-sm sm:text-base`}>
                     FOR {subscriptionPurposeEn}
                 </span>
-                <span className={`${arLabelClasses} ml-2`} dir="rtl">
-                    وذلك بدل <span className="font-medium text-slate-700 font-arabic text-base">
+                <span className={`${arLabelClasses} ml-2 text-sm sm:text-base order-1 sm:order-none`} dir="rtl">
+                    وذلك بدل <span className="font-medium text-slate-700 font-arabic text-sm sm:text-base">
                         {currentReceiptDetails.subscriptionPurpose.split('/')[1]?.trim()}
                     </span>
                 </span>
@@ -295,10 +295,10 @@ const App: React.FC = () => {
                 </div>
             </div>
             
-            <div className="flex items-baseline pt-4">
-                <span className={`${enLabelClasses} whitespace-nowrap mr-2`}>DESCRIPTION</span>
-                <input type="text" name="description" value={currentReceiptDetails.description} onChange={(e) => handleDetailChange('description', e.target.value)} className={`${fillInInputClasses}`}/>
-                <span className={`${arLabelClasses} whitespace-nowrap ml-2`} dir="rtl">الشرح</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-4 sm:gap-0 pt-4">
+                <span className={`${enLabelClasses} whitespace-nowrap mr-2 text-sm sm:text-base`}>DESCRIPTION</span>
+                <input type="text" name="description" value={currentReceiptDetails.description} onChange={(e) => handleDetailChange('description', e.target.value)} className={`${fillInInputClasses} order-2 sm:order-none`}/>
+                <span className={`${arLabelClasses} whitespace-nowrap ml-2 text-sm sm:text-base order-1 sm:order-none`} dir="rtl">الشرح</span>
             </div>
 
             <div className="pt-6">
@@ -330,10 +330,10 @@ const App: React.FC = () => {
                 </div>
             </div>
 
-            <div className="flex items-baseline pt-6">
-                <span className={`${enLabelClasses} whitespace-nowrap mr-2`}>NOTES</span>
-                <input type="text" name="notes" value={currentReceiptDetails.notes} onChange={(e) => handleDetailChange('notes', e.target.value)} className={`${fillInInputClasses}`}/>
-                <span className={`${arLabelClasses} whitespace-nowrap ml-2`} dir="rtl">ملاحظات</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-4 sm:gap-0 pt-6">
+                <span className={`${enLabelClasses} whitespace-nowrap mr-2 text-sm sm:text-base`}>NOTES</span>
+                <input type="text" name="notes" value={currentReceiptDetails.notes} onChange={(e) => handleDetailChange('notes', e.target.value)} className={`${fillInInputClasses} order-2 sm:order-none`}/>
+                <span className={`${arLabelClasses} whitespace-nowrap ml-2 text-sm sm:text-base order-1 sm:order-none`} dir="rtl">ملاحظات</span>
             </div>
         </main>
 
