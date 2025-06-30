@@ -246,16 +246,16 @@ const App: React.FC = () => {
                 </span>
             </div>
             
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 sm:gap-x-12 gap-y-4 pt-2">
-                <div className="flex items-baseline">
-                    <span className={`${enLabelClasses} whitespace-nowrap mr-2`}>TENT NO.</span>
-                    <input type="text" name="tentNumber" value={currentReceiptDetails.tentNumber} onChange={(e) => handleDetailChange('tentNumber', e.target.value)} className={`${fillInInputClasses} !flex-grow-0 w-24 sm:w-32`}/>
-                    <span className={`${arLabelClasses} whitespace-nowrap ml-2`} dir="rtl">الخيمة رقم</span>
+             <div className="grid grid-cols-1 gap-y-4 pt-2">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-4 sm:gap-0">
+                    <span className={`${enLabelClasses} whitespace-nowrap mr-2 text-sm sm:text-base`}>TENT NO.</span>
+                    <input type="text" name="tentNumber" value={currentReceiptDetails.tentNumber} onChange={(e) => handleDetailChange('tentNumber', e.target.value)} className={`${fillInInputClasses} !flex-grow-0 w-24 sm:w-32 order-2 sm:order-none`}/>
+                    <span className={`${arLabelClasses} whitespace-nowrap ml-2 text-sm sm:text-base order-1 sm:order-none`} dir="rtl">الخيمة رقم</span>
                 </div>
-                <div className="flex items-baseline">
-                    <span className={`${enLabelClasses} whitespace-nowrap mr-2`}>USAGE PURPOSE</span>
-                    <input type="text" name="usagePurpose" value={currentReceiptDetails.usagePurpose} onChange={(e) => handleDetailChange('usagePurpose', e.target.value)} className={`${fillInInputClasses} !flex-grow-0 w-24 sm:w-32`}/>
-                    <span className={`${arLabelClasses} ml-2`} dir="rtl">جهة الاستعمال</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-4 sm:gap-0">
+                    <span className={`${enLabelClasses} whitespace-nowrap mr-2 text-sm sm:text-base`}>USAGE PURPOSE</span>
+                    <input type="text" name="usagePurpose" value={currentReceiptDetails.usagePurpose} onChange={(e) => handleDetailChange('usagePurpose', e.target.value)} className={`${fillInInputClasses} !flex-grow-0 w-24 sm:w-32 order-2 sm:order-none`}/>
+                    <span className={`${arLabelClasses} ml-2 text-sm sm:text-base order-1 sm:order-none`} dir="rtl">جهة الاستعمال</span>
                 </div>
             </div>
 
